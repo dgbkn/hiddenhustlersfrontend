@@ -11,10 +11,24 @@ import { ColorModeSwitcher } from './ColorModeSwitcher';
 import { Logo } from './Logo';
 
 import { useLocalStorage } from '../hooks/useLocalStorage.js';
+import React, { useState, useEffect } from 'react';
+import jwt_decode from "jwt-decode";
 
 export default function Navbar() {
     var router = useRouter();
     const [authToken, setauthToken] = useLocalStorage("token", "");
+    const [user, setUser] = useState({});
+
+
+
+    useEffect(() => {
+        if (authToken != null) {
+            console.log(authToken);
+            const current_user = jwt_decode(authToken);
+            setUser(current_user.payload);
+            console.log(current_user.payload);
+        }
+    }, [authToken]);
 
     return (
 
@@ -40,6 +54,12 @@ export default function Navbar() {
                             onClick={() => {setauthToken(null);window.location.replace('/')}}
                             icon={<FaSignOutAlt />}
                         />
+                    </>}
+
+                    {user && user.isProvider && <>
+                    <Button colorScheme='red' variant='outline' onClick={() => router.push('/addjobs')}>
+                        Add jobs.
+                    </Button>
                     </>}
 
 
