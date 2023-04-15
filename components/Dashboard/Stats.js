@@ -8,9 +8,46 @@ import {
     useColorModeValue,
 } from '@chakra-ui/react';
 
+import jwt_decode from "jwt-decode";
+import { useState, useEffect } from 'react';
+import { useLocalStorage } from '../../hooks/useLocalStorage.js';
 
 
-import { useCurrentUser } from '../../hooks/useCurrentUser.js';
+export default function Stats() {
+    const [authToken, setauthToken] = useLocalStorage("token", "");
+    const [user, setUser] = useState({});
+
+
+
+    useEffect(() => {
+        if (authToken != null) {
+            console.log(authToken);
+            const current_user = jwt_decode(authToken);
+            setUser(current_user.payload);
+            console.log(current_user.payload);
+        }
+    }, [authToken]);
+
+    return (
+        <Box maxW="7xl" mx={'auto'} pt={5} px={{ base: 2, sm: 12, md: 17 }}>
+            <chakra.h1
+                textAlign={'center'}
+                fontSize={'4xl'}
+                py={10}
+                fontWeight={'bold'}>
+                Welcome <span style={{ color: 'purple' }}>{user ? user.username : ""}.</span> 
+            </chakra.h1>
+
+            <SimpleGrid columns={{ base: 1, md: 3 }} spacing={{ base: 5, lg: 8 }}>
+                <StatsCard title={'We serve'} stat={'3,548 people'} />
+                {/* <StatsCard title={'In'} stat={'30 different countries'} /> */}
+                <StatsCard title={'Current Jobs'} stat={'12,658'} />
+            </SimpleGrid>
+        </Box>
+    );
+}
+
+
 
 function StatsCard(props) {
     const { title, stat } = props;
@@ -31,27 +68,5 @@ function StatsCard(props) {
                 {stat}
             </StatNumber>
         </Stat>
-    );
-}
-
-export default function Stats() {
-    const [user,setCurrentUser] = useCurrentUser("token","");
-
-    return (
-        <Box maxW="7xl" mx={'auto'} pt={5} px={{ base: 2, sm: 12, md: 17 }}>
-            <chakra.h1
-                textAlign={'center'}
-                fontSize={'4xl'}
-                py={10}
-                fontWeight={'bold'}>
-                Welcome <span style={{ color: 'purple' }}>{user ? user.username : ""}.</span> 
-            </chakra.h1>
-
-            <SimpleGrid columns={{ base: 1, md: 3 }} spacing={{ base: 5, lg: 8 }}>
-                <StatsCard title={'We serve'} stat={'3,548 people'} />
-                {/* <StatsCard title={'In'} stat={'30 different countries'} /> */}
-                <StatsCard title={'Current Jobs'} stat={'12,658'} />
-            </SimpleGrid>
-        </Box>
     );
 }
