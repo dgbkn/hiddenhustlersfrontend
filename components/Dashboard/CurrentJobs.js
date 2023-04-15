@@ -8,9 +8,10 @@ import {
     useColorModeValue,
 } from '@chakra-ui/react';
 
+import jwt_decode from "jwt-decode";
+import React, { useState, useEffect } from 'react';
 
-
-import { useCurrentUser } from '../../hooks/useCurrentUser.js';
+import { useLocalStorage } from '../../hooks/useLocalStorage.js';
 
 function StatsCard(props) {
     const { title, stat } = props;
@@ -35,7 +36,20 @@ function StatsCard(props) {
 }
 
 export default function Stats() {
-    const [user,setCurrentUser] = useCurrentUser("token","");
+    const [authToken, setauthToken] = useLocalStorage("token", "");
+    const [user, setUser] = useState({});
+
+
+
+    useEffect(() => {
+        if (authToken != null) {
+            console.log(authToken);
+            const current_user = jwt_decode(authToken);
+            setUser(current_user.payload);
+            console.log(current_user.payload);
+        }
+    }, [authToken]);
+
 
     return (
         <Box maxW="7xl" mx={'auto'} pt={5} px={{ base: 2, sm: 12, md: 17 }}>
