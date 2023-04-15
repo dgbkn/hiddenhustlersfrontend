@@ -15,6 +15,12 @@ import {
   Icon,
   Spacer
 } from '@chakra-ui/react';
+import { useState, useEffect } from 'react';
+
+import Head from "next/head";
+
+
+import Web3 from 'web3';
 
 const avatars = [
   {
@@ -39,8 +45,70 @@ const avatars = [
   },
 ];
 
-export default function JoinOurTeam() {
+export default function Login() {
+  const [haveMetamask, sethaveMetamask] = useState(true);
+
+  const [client, setclient] = useState({
+    isConnected: false,
+  });
+
+  const checkConnection = async () => {
+    const { ethereum } = window;
+    if (ethereum) {
+      sethaveMetamask(true);
+      const accounts = await ethereum.request({ method: "eth_accounts" });
+      if (accounts.length > 0) {
+        setclient({
+          isConnected: true,
+          address: accounts[0],
+        });
+      } else {
+        setclient({
+          isConnected: false,
+        });
+      }
+    } else {
+      sethaveMetamask(false);
+    }
+  };
+
+  const connectWeb3 = async () => {
+    try {
+      const { ethereum } = window;
+
+      if (!ethereum) {
+        console.log("Metamask not detected");
+        return;
+      }
+
+      const accounts = await ethereum.request({
+        method: "eth_requestAccounts",
+      });
+
+      setclient({
+        isConnected: true,
+        address: accounts[0],
+      });
+
+      
+
+    } catch (error) {
+      console.log("Error connecting to metamask", error);
+    }
+  };
+
+  useEffect(() => {
+    checkConnection();
+  }, []);
+  
+
   return (
+    <>
+      <Head>
+        <title>
+          Login
+        </title>
+      </Head>
     <Box position={'relative'}>
       <Container
         as={SimpleGrid}
@@ -149,6 +217,7 @@ export default function JoinOurTeam() {
               w={250}
               bgGradient="linear(to-r, red.400,orange.400)"
               color={'white'}
+              onClick={connectWeb3}
               _hover={{
                 bgGradient: 'linear(to-r, red.500,orange.500)',
                 boxShadow: 'xl',
@@ -173,6 +242,7 @@ export default function JoinOurTeam() {
         style={{ filter: 'blur(80px)' }}
       />
     </Box>
+    </>
   );
 }
 
