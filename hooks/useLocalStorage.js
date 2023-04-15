@@ -1,23 +1,47 @@
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 
-function getStorageValue(key, defaultValue) {
-  // getting stored value
-  const saved = localStorage.getItem(key);
-  const initial = JSON.parse(saved);
-  return initial || defaultValue;
-}
+export const useLocalStorage = (key, initialValue) => {
+  const initialize = (key) => {
+    try {
+      const item = localStorage.getItem(key);
+      if (item && item !== "undefined") {
+        return JSON.parse(item);
+      }
 
-export const useLocalStorage = (key, defaultValue) => {
-  const [value, setValue] = useState(() => {
-    var val = getStorageValue(key, defaultValue);
-    console.log(val);
-    return val;
-  });
+      localStorage.setItem(key, JSON.stringify(initialValue));
+      return initialValue;
+    } catch {
+      return initialValue;
+    }
+  };
 
-  useEffect(() => {
-    // storing input name
-    localStorage.setItem(key, JSON.stringify(value));
-  }, [key, value]);
+  const [state, setState] = useState(null); // problem is here
 
-  return [value, setValue];
+  // solution is here....
+  useEffect(()=>{
+    setState(initialize(key));
+  },[]);
+
+  const setValue = useCallback(
+    (value) => {
+      try {
+        const valueToStore = value instanceof Function ? value(storedValue) : value;
+        setState(valueToStore);
+        localStorage.setItem(key, JSON.stringify(valueToStore));
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    [key, setState]
+  );
+
+  const remove = useCallback(() => {
+    try {
+      localStorage.removeItem(key);
+    } catch {
+      console.log(error);
+    }
+  }, [key]);
+
+  return [state, setValue, remove];
 };
