@@ -36,8 +36,17 @@ import {
   
   export default function Stats() {
     const [authToken, setauthToken] = useLocalStorage("token", "");
+    const [user, setUser] = useState({});
 
-    // const current_user = jwt_decode(authToken, { header: true });
+
+
+    useEffect(() => {
+        // Update the document title using the browser API
+        var result = authToken.substring(1, authToken.length-1);
+        const current_user = jwt_decode(result, { header: true });
+        setUser(current_user);
+      });
+
 
     return (
       <Box maxW="7xl" mx={'auto'} pt={5} px={{ base: 2, sm: 12, md: 17 }}>
@@ -49,14 +58,14 @@ import {
           Welcome
         </chakra.h1>
 
-        {/* <chakra.h1
+        <chakra.h1
           textAlign={'center'}
           fontSize={'4xl'}
           color={'blue.700'}
           py={10}
           fontWeight={'bold'}>
-          ${current_user.name}.
-        </chakra.h1> */}
+          ${authToken != null ? jwt_decode(authToken, { header: true }) : ""}.
+        </chakra.h1>
 
 
         <SimpleGrid columns={{ base: 1, md: 3 }} spacing={{ base: 5, lg: 8 }}>
